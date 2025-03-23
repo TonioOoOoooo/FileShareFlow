@@ -322,12 +322,14 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     URL.revokeObjectURL(url);
   };
 
-  // Connect to AuthContext safely
+  // Get auth context values
   useEffect(() => {
     try {
-      const { isAuthenticated: authState, getToken } = useAuth();
-      setIsAuthenticated(authState);
-      setGetTokenFn(() => getToken);
+      if (typeof useAuth === 'function') {
+        const auth = useAuth();
+        setIsAuthenticated(auth.isAuthenticated);
+        setGetTokenFn(() => auth.getToken);
+      }
     } catch (error) {
       console.error("Auth context not available yet:", error);
     }

@@ -54,5 +54,13 @@ export const graphConfig = {
   graphUploadEndpoint: "https://graph.microsoft.com/v1.0/me/drive/root:/",
 };
 
-// Create MSAL instance
+// Create and initialize MSAL instance
 export const msalInstance = new PublicClientApplication(msalConfig);
+
+// Call handleRedirectPromise in case this is a redirect from a login
+msalInstance.initialize().then(() => {
+  // Handle redirect promise to capture response from auth redirect
+  msalInstance.handleRedirectPromise().catch(error => {
+    console.error("Error handling redirect:", error);
+  });
+});
