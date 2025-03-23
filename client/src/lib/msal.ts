@@ -4,7 +4,8 @@ import { PublicClientApplication, LogLevel, AccountInfo } from "@azure/msal-brow
 const msalConfig = {
   auth: {
     clientId: import.meta.env.VITE_MICROSOFT_CLIENT_ID || '',
-    authority: `https://login.microsoftonline.com/common`,
+    // Use your tenant-specific endpoint instead of /common
+    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_MICROSOFT_TENANT_ID || ''}`,
     redirectUri: window.location.origin,
   },
   cache: {
