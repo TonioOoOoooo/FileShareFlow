@@ -228,14 +228,7 @@ export function UploadProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated) return;
 
     try {
-      const response = await fetch("/api/uploads/history", {
-        credentials: "include"
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-      
+      const response = await apiRequest("GET", "/api/uploads/history");
       const data = await response.json();
       setUploadHistory(data);
     } catch (error) {
@@ -339,13 +332,8 @@ export function UploadProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isAuthenticated) {
       // Load webhook config
-      fetch("/api/webhook/config", {
-        credentials: "include"
-      })
-        .then(res => {
-          if (res.ok) return res.json();
-          return { webhookUrl: "" };
-        })
+      apiRequest("GET", "/api/webhook/config")
+        .then(res => res.json())
         .then(data => {
           if (data.webhookUrl) {
             setWebhookUrl(data.webhookUrl);

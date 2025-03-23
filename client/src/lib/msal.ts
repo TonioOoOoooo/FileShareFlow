@@ -4,8 +4,10 @@ import { PublicClientApplication, LogLevel, AccountInfo } from "@azure/msal-brow
 const msalConfig = {
   auth: {
     clientId: import.meta.env.VITE_MICROSOFT_CLIENT_ID || '',
-    // Use organizations endpoint for any organizational account (but not personal accounts)
-    authority: 'https://login.microsoftonline.com/organizations',
+    // If tenant ID is available, use it, otherwise fall back to organizations
+    authority: import.meta.env.VITE_MICROSOFT_TENANT_ID ? 
+      `https://login.microsoftonline.com/${import.meta.env.VITE_MICROSOFT_TENANT_ID}` : 
+      'https://login.microsoftonline.com/organizations',
     redirectUri: window.location.origin,
   },
   cache: {

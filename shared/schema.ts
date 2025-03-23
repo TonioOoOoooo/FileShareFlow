@@ -8,6 +8,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+// Using proper nullable fields
 export const uploadHistory = pgTable("upload_history", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
@@ -32,10 +33,16 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-export const insertUploadHistorySchema = createInsertSchema(uploadHistory).omit({
-  id: true,
-  uploadedAt: true,
-});
+// Explicitly define nullable fields in the schema
+export const insertUploadHistorySchema = createInsertSchema(uploadHistory)
+  .omit({
+    id: true,
+    uploadedAt: true,
+  })
+  .extend({
+    webhookUrl: z.string().nullish(),
+    markdownResult: z.string().nullish(),
+  });
 
 export const insertWebhookConfigSchema = createInsertSchema(webhookConfigs).omit({
   id: true,
