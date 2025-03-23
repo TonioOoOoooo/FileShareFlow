@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { msalInstance } from "./msal";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -7,14 +8,31 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+// Get the user ID from the active MSAL account
+function getUserId(): string | null {
+  const account = msalInstance.getActiveAccount();
+  return account ? account.username : null;
+}
+
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  const userId = getUserId();
+  
+  const headers: Record<string, string> = {
+    ...(data ? { "Content-Type": "application/json" } : {}),
+  };
+  
+  // Add user ID header if available
+  if (userId) {
+    headers["X-User-Id"] = userId;
+  }
+  
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -29,8 +47,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    const userId = getUserId();
+    const headers: Record<string, string> = {};
+    
+    // Add user ID header if available
+    if (userId) {
+      headers["X-User-Id"] = userId;
+    }
+    
     const res = await fetch(queryKey[0] as string, {
       credentials: "include",
+      headers
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
